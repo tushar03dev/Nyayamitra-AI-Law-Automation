@@ -1,1 +1,0 @@
-# Nyayamitra-AI-Law-Automation
