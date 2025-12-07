@@ -140,7 +140,7 @@ export function CasesListView() {
       ) : filteredCases.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredCases.map((caseItem) => (
-            <Link key={caseItem.id} href={`/cases/${caseItem.id}`}>
+            <Link key={caseItem._id || caseItem.id} href={`/cases/${caseItem._id || caseItem.id}`}>
               <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">

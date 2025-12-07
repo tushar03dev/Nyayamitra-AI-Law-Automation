@@ -3,6 +3,7 @@ import { Case } from '../models/caseModel';
 import { Hearing } from '../models/hearingModel';
 import { Event } from '../models/eventModel';
 import { Notification } from '../models/notificationModel';
+import { User } from '../models/userModel';
 import { createEventPayload, updateEventPayload, eventIdParam, dateQueryParam } from '../types/dashboard';
 import { AuthRequest } from '../middleware/auth';
 import { flattenZodError } from '../utils/validation';
@@ -21,76 +22,75 @@ export const getDashboardStats = async (req: AuthRequest, res: Response, next: N
         const allCases = await Case.find({ organizationId });
 
         const totalCases = allCases.length;
-        const pendingCases = allCases.filter(c => c.status === 'pending').length;
-        const resolvedCases = allCases.filter(c => c.status === 'resolved').length;
-        const overduePendingCases = allCases.filter(c =>
-            c.status === 'pending' &&
-            c.nextHearingDate &&
-            new Date(c.nextHearingDate) < new Date()
-        ).length;
+        const activeCases = allCases.filter(c => c.status === 'ongoing').length;
 
-        // Get upcoming deadlines (next 7 days)
+        // Get upcoming hearings (next 7 days)
         const sevenDaysFromNow = new Date();
         sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
 
-        const upcomingDeadlines = allCases.filter(c =>
+        const upcomingHearings = allCases.filter(c =>
             c.nextHearingDate &&
             new Date(c.nextHearingDate) <= sevenDaysFromNow &&
             new Date(c.nextHearingDate) >= new Date()
         ).length;
 
-        // Sample case details (first 5 for each category)
-        const totalCasesDetails = allCases.slice(0, 5).map(c => ({
-            caseId: c._id,
-            title: c.title
-        }));
+        // Get team members count (users in organization)
+        const teamMembers = await User.countDocuments({ organizationId });
 
-        const pendingCasesDetails = allCases
-            .filter(c => c.status === 'pending')
-            .slice(0, 5)
-            .map(c => ({
-                caseId: c._id,
-                title: c.title
-            }));
+        // Cases by status
+        const casesByStatus = [
+            { status: 'open', count: allCases.filter(c => c.status === 'open').length },
+            { status: 'ongoing', count: allCases.filter(c => c.status === 'ongoing').length },
+            { status: 'on_hold', count: allCases.filter(c => c.status === 'on_hold').length },
+            { status: 'closed', count: allCases.filter(c => c.status === 'closed').length }
+        ];
 
-        const resolvedCasesDetails = allCases
-            .filter(c => c.status === 'resolved')
-            .slice(0, 5)
-            .map(c => ({
-                caseId: c._id,
-                title: c.title
-            }));
+        // Cases by priority
+        const casesByPriority = [
+            { priority: 'low', count: allCases.filter(c => c.priority === 'low').length },
+            { priority: 'medium', count: allCases.filter(c => c.priority === 'medium').length },
+            { priority: 'high', count: allCases.filter(c => c.priority === 'high').length }
+        ];
 
-        const upcomingDeadlineDetails = allCases
-            .filter(c =>
+        // Case workload (lawyers and their case counts)
+        const lawyers = await User.find({ organizationId, role: 'lawyer' });
+        const caseWorkload = lawyers.map(lawyer => {
+            const lawyerCases = allCases.filter(c =>
+                c.assignedLawyers.some(id => id.toString() === lawyer._id.toString())
+            );
+            return {
+                lawyer: lawyer.name,
+                cases: lawyerCases.length
+            };
+        });
+
+        // Hearing timeline (next 30 days)
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+        const hearingTimeline = [];
+        for (let i = 0; i < 30; i++) {
+            const date = new Date();
+            date.setDate(date.getDate() + i);
+            const count = allCases.filter(c =>
                 c.nextHearingDate &&
-                new Date(c.nextHearingDate) <= sevenDaysFromNow &&
-                new Date(c.nextHearingDate) >= new Date()
-            )
-            .slice(0, 5)
-            .map(c => ({
-                caseId: (c._id as any).toString(),
-                title: c.title
-            }));
+                new Date(c.nextHearingDate).toDateString() === date.toDateString()
+            ).length;
+            hearingTimeline.push({
+                date: date.toISOString().split('T')[0],
+                count
+            });
+        }
 
-        // Mock change percentages (in real app, calculate from historical data)
         const stats = {
             totalCases,
-            totalCasesChange: 12, // Mock
-            pendingCases,
-            pendingCasesChange: -5, // Mock
-            overduePendingCasesCount: overduePendingCases,
-            resolvedCases,
-            resolvedCasesChange: 8, // Mock
-            upcomingDeadlines,
-            totalCasesDetails,
-            pendingCasesDetails,
-            overduePendingCasesDetails: pendingCasesDetails.filter(c =>
-                allCases.find(ac => (ac._id as any).toString() === c.caseId)?.nextHearingDate &&
-                new Date(allCases.find(ac => (ac._id as any).toString() === c.caseId)!.nextHearingDate!) < new Date()
-            ),
-            resolvedCasesDetails,
-            upcomingDeadlineDetails
+            activeCases,
+            upcomingHearings,
+            teamMembers,
+            casesByStatus,
+            casesByPriority,
+            caseWorkload,
+            hearingTimeline
         };
 
         res.json(stats);

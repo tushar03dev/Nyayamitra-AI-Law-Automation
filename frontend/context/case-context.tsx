@@ -31,8 +31,17 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     setError(null)
     try {
-      // Mock implementation - replace with actual API call
-      setCases([])
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/cases`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (!response.ok) {
+        throw new Error('Failed to fetch cases')
+      }
+      const data = await response.json()
+      setCases(data)
     } catch (err: any) {
       setError(err.message || "Failed to fetch cases")
     } finally {
@@ -44,8 +53,17 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     setError(null)
     try {
-      // Mock implementation - replace with actual API call
-      setSelectedCase(null)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/cases/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (!response.ok) {
+        throw new Error('Failed to fetch case')
+      }
+      const data = await response.json()
+      setSelectedCase(data)
     } catch (err: any) {
       setError(err.message || "Failed to fetch case")
     } finally {
@@ -57,17 +75,18 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     setError(null)
     try {
-      // Mock implementation - replace with actual API call
-      const newCase: Case = {
-        id: `case-${Date.now()}`,
-        title: caseData.title || "",
-        caseNumber: caseData.caseNumber || "",
-        description: caseData.description,
-        status: (caseData.status as any) || "open",
-        priority: (caseData.priority as any) || "medium",
-        clientNames: caseData.clientNames || [],
-        createdAt: new Date().toISOString(),
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/cases`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(caseData),
+      })
+      if (!response.ok) {
+        throw new Error('Failed to create case')
       }
+      const newCase = await response.json()
       setCases([...cases, newCase])
     } catch (err: any) {
       setError(err.message || "Failed to create case")
@@ -81,8 +100,19 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     setError(null)
     try {
-      // Mock implementation - replace with actual API call
-      setCases(cases.map((c) => (c.id === id ? { ...c, ...caseData } : c)))
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/cases/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(caseData),
+      })
+      if (!response.ok) {
+        throw new Error('Failed to update case')
+      }
+      const updatedCase = await response.json()
+      setCases(cases.map((c) => (c._id === id || c.id === id ? updatedCase : c)))
     } catch (err: any) {
       setError(err.message || "Failed to update case")
     } finally {
@@ -94,8 +124,17 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     setError(null)
     try {
-      // Mock implementation - replace with actual API call
-      setCases(cases.filter((c) => c.id !== id))
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/cases/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (!response.ok) {
+        throw new Error('Failed to delete case')
+      }
+      setCases(cases.filter((c) => c._id !== id && c.id !== id))
     } catch (err: any) {
       setError(err.message || "Failed to delete case")
     } finally {

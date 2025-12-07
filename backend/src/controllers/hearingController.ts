@@ -22,12 +22,18 @@ export const getHearings = async (req: AuthRequest, res: Response, next: NextFun
                 select: 'title caseNumber clientNames',
                 populate: {
                     path: 'assignedLawyers assignedJuniors',
-                    select: 'firstName lastName'
+                    select: 'name'
                 }
             })
             .sort({ date: 1, time: 1 });
 
-        res.json(hearings);
+        // Add caseTitle to each hearing
+        const hearingsWithCaseTitle = hearings.map(hearing => ({
+            ...hearing.toObject(),
+            caseTitle: (hearing as any).caseId?.title || 'Unknown Case'
+        }));
+
+        res.json(hearingsWithCaseTitle);
     } catch (err) {
         console.log("GET HEARINGS ERROR:", err);
         next(err);

@@ -23,14 +23,15 @@ export interface Organization {
 }
 
 export interface Case {
-  id: string
+  _id?: string
+  id?: string
   title: string
   clientNames: string[]
-  description: string
+  description?: string
   status: "open" | "ongoing" | "closed" | "on_hold"
   caseNumber: string
-  assignedLawyers: string[]
-  assignedJuniors: string[]
+  assignedLawyers: any[]
+  assignedJuniors: any[]
   createdAt: string
   updatedAt: string
   nextHearingDate?: string

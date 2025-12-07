@@ -1,14 +1,13 @@
 # Node modules
 node_modules/
 
-# Build outputs
-.next/
-out/
-
 # Environment variables
 .env
-.env.local
 .env.*.local
+.env.local
+.env.development
+.env.test.local
+.env.production.local
 
 # Logs
 logs/
@@ -16,6 +15,19 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Build output
+dist/
+build/
+coverage/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# TypeScript
+*.tsbuildinfo
 
 # OS files
 .DS_Store
@@ -25,14 +37,11 @@ Thumbs.db
 .vscode/
 .idea/
 
-# TypeScript
-*.tsbuildinfo
+# PM2 logs
+.pids
+*.pid
+*.seed
+*.pid.lock
 
-# Next.js cache
-.next/cache/
-
-# Tailwind
-*.css.map
-
-# Prisma (if used in frontend)
+# Prisma
 prisma/migrations/.DS_Store

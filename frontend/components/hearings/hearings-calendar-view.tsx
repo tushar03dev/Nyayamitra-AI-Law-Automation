@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -11,52 +11,33 @@ import type { Hearing } from "@/types"
 export function HearingsCalendarView() {
   const [view, setView] = useState<"month" | "list">("month")
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [hearings, setHearings] = useState<Hearing[]>([
-    {
-      id: "h1",
-      caseId: "case-1",
-      date: new Date(Date.now() + 86400000).toISOString(),
-      time: "10:00 AM",
-      location: "Court Room 3, District Court",
-      judge: "Hon. Justice Smith",
-      status: "scheduled",
-      notes: "Pre-trial hearing for Smith v. Corporation",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "h2",
-      caseId: "case-2",
-      date: new Date(Date.now() + 172800000).toISOString(),
-      time: "2:00 PM",
-      location: "Court Room 1, High Court",
-      judge: "Hon. Justice Johnson",
-      status: "scheduled",
-      notes: "Final arguments hearing",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "h3",
-      caseId: "case-3",
-      date: new Date(Date.now() + 259200000).toISOString(),
-      time: "11:30 AM",
-      location: "Mediation Room B, Courthouse",
-      judge: "Hon. Justice Williams",
-      status: "scheduled",
-      notes: "Settlement discussion",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "h4",
-      caseId: "case-1",
-      date: new Date(Date.now() - 86400000).toISOString(),
-      time: "9:00 AM",
-      location: "Court Room 2, District Court",
-      judge: "Hon. Justice Brown",
-      status: "completed",
-      notes: "Motion hearing completed",
-      createdAt: new Date().toISOString(),
-    },
-  ])
+  const [hearings, setHearings] = useState<Hearing[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchHearings()
+  }, [])
+
+  const fetchHearings = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/hearings`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (!response.ok) {
+        throw new Error('Failed to fetch hearings')
+      }
+      const data = await response.json()
+      setHearings(data)
+    } catch (error) {
+      console.error('Failed to fetch hearings:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()
   const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay()
@@ -80,6 +61,20 @@ export function HearingsCalendarView() {
   }
 
   const monthName = currentDate.toLocaleString("default", { month: "long", year: "numeric" })
+
+  if (loading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Hearings Calendar</h1>
+            <p className="text-muted-foreground mt-1">Manage all scheduled hearings and dates</p>
+          </div>
+        </div>
+        <div className="text-center py-12">Loading hearings...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -187,7 +182,7 @@ export function HearingsCalendarView() {
                     <div key={hearing.id} className="border rounded-lg p-4 hover:bg-accent/50 transition">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="font-semibold">Case {hearing.caseId}</h3>
+                          <h3 className="font-semibold">{(hearing as any).caseTitle || `Case ${(hearing as any).caseId}`}</h3>
                           {hearing.notes && <p className="text-sm text-muted-foreground mt-1">{hearing.notes}</p>}
                         </div>
                         <Badge

@@ -6,7 +6,7 @@ export interface ICase extends mongoose.Document {
     caseNumber: string;
     clientNames: string[];
     description?: string;
-    status: 'active' | 'pending' | 'resolved' | 'closed';
+    status: 'open' | 'ongoing' | 'on_hold' | 'closed';
     priority: 'low' | 'medium' | 'high';
     assignedLawyers: mongoose.Types.ObjectId[];
     assignedJuniors: mongoose.Types.ObjectId[];
@@ -23,8 +23,8 @@ const CaseSchema = new mongoose.Schema<ICase>({
     description: String,
     status: {
         type: String,
-        enum: ['active', 'pending', 'resolved', 'closed'],
-        default: 'active'
+        enum: ['open', 'ongoing', 'on_hold', 'closed'],
+        default: 'open'
     },
     priority: {
         type: String,
