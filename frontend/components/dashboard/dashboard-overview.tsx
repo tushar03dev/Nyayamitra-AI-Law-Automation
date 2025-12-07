@@ -22,7 +22,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts"
-import { Calendar, Users, FileText, TrendingUp } from "lucide-react"
+import { Calendar, Users, FileText, TrendingUp, ArrowUpRight } from "lucide-react"
 import axiosInstance from "@/lib/axios-instance"
 import Link from "next/link"
 
@@ -71,58 +71,59 @@ function DashboardOverview() {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg p-8 text-white">
-        <h1 className="text-4xl font-bold mb-2">Welcome back, {user?.firstName || user?.name}!</h1>
-        <p className="text-blue-100">Here's what's happening with your cases today</p>
+      <div className="bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 rounded-lg p-8 backdrop-blur-sm">
+        <h1 className="text-4xl font-bold mb-2 text-foreground">Welcome back, {user?.firstName || user?.name}!</h1>
+        <p className="text-muted-foreground text-lg">Here's your legal practice at a glance</p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="p-6 bg-card border-border hover:border-primary/50 transition-colors">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Total Cases</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{stats?.totalCases || 0}</p>
+              <p className="text-muted-foreground text-sm font-medium">Total Cases</p>
+              <p className="text-3xl font-bold text-foreground mt-2">{stats?.totalCases || 0}</p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FileText className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
+              <FileText className="w-6 h-6 text-primary" />
             </div>
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-6 bg-card border-border hover:border-secondary/50 transition-colors">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Active Cases</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{stats?.activeCases || 0}</p>
+              <p className="text-muted-foreground text-sm font-medium">Active Cases</p>
+              <div className="flex items-center gap-2 mt-2">
+                <p className="text-3xl font-bold text-foreground">{stats?.activeCases || 0}</p>
+                <ArrowUpRight className="w-4 h-4 text-secondary" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-green-600" />
+            <div className="w-12 h-12 bg-secondary/20 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-secondary" />
             </div>
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-6 bg-card border-border hover:border-accent/50 transition-colors">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Upcoming Hearings</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{stats?.upcomingHearings || 0}</p>
+              <p className="text-muted-foreground text-sm font-medium">Upcoming Hearings</p>
+              <p className="text-3xl font-bold text-foreground mt-2">{stats?.upcomingHearings || 0}</p>
             </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <Calendar className="w-6 h-6 text-orange-600" />
+            <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center">
+              <Calendar className="w-6 h-6 text-accent" />
             </div>
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-6 bg-card border-border hover:border-[hsl(150,70%,50%)]/50 transition-colors">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Team Members</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{stats?.teamMembers || 0}</p>
+              <p className="text-muted-foreground text-sm font-medium">Team Members</p>
+              <p className="text-3xl font-bold text-foreground mt-2">{stats?.teamMembers || 0}</p>
             </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Users className="w-6 h-6 text-purple-600" />
+            <div className="w-12 h-12 bg-[hsl(150,70%,50%)]/20 rounded-lg flex items-center justify-center">
+              <Users className="w-6 h-6 text-[hsl(150,70%,50%)]" />
             </div>
           </div>
         </Card>
@@ -130,15 +131,21 @@ function DashboardOverview() {
 
       {/* Charts */}
       <Tabs defaultValue="cases" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="cases">Case Status</TabsTrigger>
-          <TabsTrigger value="workload">Workload</TabsTrigger>
-          <TabsTrigger value="timeline">Hearings Timeline</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 bg-card border-border">
+          <TabsTrigger value="cases" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+            Case Status
+          </TabsTrigger>
+          <TabsTrigger value="workload" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+            Workload
+          </TabsTrigger>
+          <TabsTrigger value="timeline" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+            Hearings Timeline
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="cases">
-          <Card className="p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-6">Cases by Status</h3>
+          <Card className="p-6 bg-card border-border">
+            <h3 className="text-lg font-bold text-foreground mb-6">Cases by Status</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -150,9 +157,11 @@ function DashboardOverview() {
                   outerRadius={100}
                   label
                 >
-                  {["#3B82F6", "#10B981", "#F59E0B", "#EF4444"].map((color, idx) => (
-                    <Cell key={idx} fill={color} />
-                  ))}
+                  {["hsl(200, 100%, 50%)", "hsl(280, 60%, 50%)", "hsl(30, 100%, 55%)", "hsl(150, 70%, 50%)"].map(
+                    (color, idx) => (
+                      <Cell key={idx} fill={color} />
+                    ),
+                  )}
                 </Pie>
                 <Tooltip />
                 <Legend />
@@ -162,30 +171,34 @@ function DashboardOverview() {
         </TabsContent>
 
         <TabsContent value="workload">
-          <Card className="p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-6">Lawyer Workload</h3>
+          <Card className="p-6 bg-card border-border">
+            <h3 className="text-lg font-bold text-foreground mb-6">Lawyer Workload</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={stats?.caseWorkload || []}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="lawyer" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="cases" fill="#3B82F6" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 13%, 25%)" />
+                <XAxis dataKey="lawyer" stroke="hsl(0, 0%, 70%)" />
+                <YAxis stroke="hsl(0, 0%, 70%)" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "hsl(220, 13%, 13%)", border: "1px solid hsl(220, 13%, 25%)" }}
+                />
+                <Bar dataKey="cases" fill="hsl(200, 100%, 50%)" />
               </BarChart>
             </ResponsiveContainer>
           </Card>
         </TabsContent>
 
         <TabsContent value="timeline">
-          <Card className="p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-6">Upcoming Hearings Timeline</h3>
+          <Card className="p-6 bg-card border-border">
+            <h3 className="text-lg font-bold text-foreground mb-6">Upcoming Hearings Timeline</h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={stats?.hearingTimeline || []}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="count" stroke="#3B82F6" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 13%, 25%)" />
+                <XAxis dataKey="date" stroke="hsl(0, 0%, 70%)" />
+                <YAxis stroke="hsl(0, 0%, 70%)" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "hsl(220, 13%, 13%)", border: "1px solid hsl(220, 13%, 25%)" }}
+                />
+                <Line type="monotone" dataKey="count" stroke="hsl(200, 100%, 50%)" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </Card>
@@ -194,29 +207,25 @@ function DashboardOverview() {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Upcoming Hearings</h3>
+        <Card className="p-6 bg-card border-border">
+          <h3 className="text-lg font-bold text-foreground mb-4">Upcoming Hearings</h3>
           <div className="space-y-3">
-            {/* Placeholder for upcoming hearings list */}
-            <p className="text-sm text-gray-600">No hearings in the next 7 days</p>
+            <p className="text-sm text-muted-foreground">No hearings in the next 7 days</p>
           </div>
           <Link href="/hearings">
-            <Button variant="outline" className="w-full mt-4 bg-transparent">
+            <Button className="w-full mt-4 bg-primary hover:bg-primary/90 text-primary-foreground">
               View Calendar
             </Button>
           </Link>
         </Card>
 
-        <Card className="p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Recent Activities</h3>
+        <Card className="p-6 bg-card border-border">
+          <h3 className="text-lg font-bold text-foreground mb-4">Recent Activities</h3>
           <div className="space-y-3">
-            {/* Placeholder for activities */}
-            <p className="text-sm text-gray-600">No recent activities</p>
+            <p className="text-sm text-muted-foreground">No recent activities</p>
           </div>
           <Link href="/cases">
-            <Button variant="outline" className="w-full mt-4 bg-transparent">
-              View Cases
-            </Button>
+            <Button className="w-full mt-4 bg-accent hover:bg-accent/90 text-accent-foreground">View Cases</Button>
           </Link>
         </Card>
       </div>

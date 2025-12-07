@@ -32,30 +32,30 @@ export function CaseDetailView({ caseId }: CaseDetailViewProps) {
   if (loading || !case_) {
     return (
       <div className="p-6 space-y-6">
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-96 w-full" />
+        <Skeleton className="h-32 w-full bg-muted" />
+        <Skeleton className="h-96 w-full bg-muted" />
       </div>
     )
   }
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      open: "bg-blue-100 text-blue-800",
-      ongoing: "bg-yellow-100 text-yellow-800",
-      closed: "bg-green-100 text-green-800",
-      on_hold: "bg-gray-100 text-gray-800",
+      open: "bg-primary/20 text-primary",
+      ongoing: "bg-accent/20 text-accent",
+      closed: "bg-green-500/20 text-green-300",
+      on_hold: "bg-muted/40 text-muted-foreground",
     }
-    return colors[status] || "bg-gray-100 text-gray-800"
+    return colors[status] || "bg-muted/40 text-muted-foreground"
   }
 
   const getPriorityColor = (priority: string) => {
     const colors: Record<string, string> = {
-      low: "bg-green-50 text-green-700",
-      medium: "bg-yellow-50 text-yellow-700",
-      high: "bg-orange-50 text-orange-700",
-      urgent: "bg-red-50 text-red-700",
+      low: "bg-green-500/20 text-green-300",
+      medium: "bg-accent/20 text-accent",
+      high: "bg-secondary/20 text-secondary",
+      urgent: "bg-red-500/20 text-red-300",
     }
-    return colors[priority] || "bg-gray-50 text-gray-700"
+    return colors[priority] || "bg-muted/40 text-muted-foreground"
   }
 
   return (
@@ -63,10 +63,10 @@ export function CaseDetailView({ caseId }: CaseDetailViewProps) {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{case_.title}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{case_.title}</h1>
           <p className="text-muted-foreground mt-2">{case_.caseNumber}</p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
           <Edit className="h-4 w-4" />
           Edit Case
         </Button>
@@ -74,52 +74,52 @@ export function CaseDetailView({ caseId }: CaseDetailViewProps) {
 
       {/* Info Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Status</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Status</CardTitle>
           </CardHeader>
           <CardContent>
-            <Badge className={getStatusColor(case_.status)}>{case_.status.replace("_", " ")}</Badge>
+            <Badge className={getStatusColor(case_.status)}>{case_.status.replace("_", " ").toUpperCase()}</Badge>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Priority</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Priority</CardTitle>
           </CardHeader>
           <CardContent>
             <Badge variant="outline" className={getPriorityColor(case_.priority)}>
-              {case_.priority}
+              {case_.priority.toUpperCase()}
             </Badge>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Next Hearing</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Next Hearing</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm font-medium">
+            <p className="text-sm font-medium text-foreground">
               {case_.nextHearingDate ? new Date(case_.nextHearingDate).toLocaleDateString() : "Not scheduled"}
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Created</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Created</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm font-medium">{new Date(case_.createdAt).toLocaleDateString()}</p>
+            <p className="text-sm font-medium text-foreground">{new Date(case_.createdAt).toLocaleDateString()}</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Description */}
       {case_.description && (
-        <Card>
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle>Case Description</CardTitle>
+            <CardTitle className="text-foreground">Case Description</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground leading-relaxed">{case_.description}</p>
@@ -129,20 +129,32 @@ export function CaseDetailView({ caseId }: CaseDetailViewProps) {
 
       {/* Tabs */}
       <Tabs defaultValue="participants" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="participants" className="gap-2">
+        <TabsList className="grid w-full grid-cols-4 bg-card border-border">
+          <TabsTrigger
+            value="participants"
+            className="gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
+          >
             <Users className="h-4 w-4" />
             Team
           </TabsTrigger>
-          <TabsTrigger value="documents" className="gap-2">
+          <TabsTrigger
+            value="documents"
+            className="gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
+          >
             <FileText className="h-4 w-4" />
             Documents
           </TabsTrigger>
-          <TabsTrigger value="timeline" className="gap-2">
+          <TabsTrigger
+            value="timeline"
+            className="gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
+          >
             <Calendar className="h-4 w-4" />
             Timeline
           </TabsTrigger>
-          <TabsTrigger value="chat" className="gap-2">
+          <TabsTrigger
+            value="chat"
+            className="gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
+          >
             <MessageSquare className="h-4 w-4" />
             Chat
           </TabsTrigger>
@@ -161,9 +173,9 @@ export function CaseDetailView({ caseId }: CaseDetailViewProps) {
         </TabsContent>
 
         <TabsContent value="chat" className="space-y-4">
-          <Card>
+          <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle>Case Discussion</CardTitle>
+              <CardTitle className="text-foreground">Case Discussion</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">Chat feature will be displayed here</p>
